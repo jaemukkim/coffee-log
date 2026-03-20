@@ -1,0 +1,6 @@
+streamlit
+pandas
+sqlalchemy  # 데이터베이스 추상화 및 조작
+pymysql
+cryptography # MySQL 최신 인증 방식(caching_sha2_password) 대응을 위해 필요
+python-dotenv

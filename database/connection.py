@@ -1,18 +1,16 @@
-import streamlit as st
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import pymysql
+import os
+from dotenv import load_dotenv
 
-# secrets.toml에서 정보 가져오기
-db_info = st.secrets["mysql"]
+load_dotenv()
 
-DB_URL = f"mysql+pymysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}"
-
-engine = create_engine(DB_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-def get_db():
-    db = SessionLocal()
-    try:
-        return db
-    finally:
-        db.close()
+def get_connection():
+    return pymysql.connect(
+        host=os.getenv('DB_HOST'),
+        port=int(os.getenv('DB_PORT')),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        db=os.getenv('DB_NAME'),
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
+    )

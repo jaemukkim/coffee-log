@@ -1,0 +1,53 @@
+def get_all_capsules(conn): # 호출할 때 conn을 받음
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM capsules")
+        return cursor.fetchall()
+
+# 테이블 생성 함수
+def create_tables(conn):
+    with conn.cursor() as cursor:
+        # 캡슐 마스터 테이블
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS capsules (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(50) NOT NULL,
+                brand VARCHAR(30) DEFAULT 'illy',
+                intensity INT,
+                acidity INT,
+                stock_count INT DEFAULT 0
+            )
+        """)
+        
+        # 소비 기록 테이블
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS consumption_log (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                capsule_id INT,
+                drink_type VARCHAR(20),
+                consumed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (capsule_id) REFERENCES capsules(id)
+            )
+        """)
+    conn.commit()
+    print("테이블이 성공적으로 생성되었습니다.")
+
+
+# 캡슐 소비 함수
+def consume_capsule(conn, capsule_id, drink_type="아이스 아메리카노"):
+    """캡슐을 하나 마셨을 때 로그를 남기고 재고를 줄입니다."""
+    try:
+        with conn.cursor() as cursor:
+            # 소비 로그 추가
+            sql_log = "INSERT INTO consumption_log (capsule_id, drink_type) VALUES (%s, %s)"
+            cursor.execute(sql_log, (capsule_id, drink_type))
+            
+            # 재고 차감 (-1)
+            sql_update = "UPDATE capsules SET stock_count = stock_count - 1 WHERE id = %s"
+            cursor.execute(sql_update, (capsule_id,))
+            
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error: {e}")
+        conn.rollback()
+        return False

@@ -37,7 +37,7 @@
 * **Framework**: `Streamlit`
 * **Database**: `MySQL`
 * **Library**: `Pandas`, `Plotly`, `Numpy`, `PyMySQL`
-* **Tools**: `DBeaver`
+* **Tools**: `DBeaver`, `Docker`
 
 ---
 

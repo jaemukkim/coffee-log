@@ -1,8 +1,13 @@
-# 전체 목록 가져오기
 def get_all_capsules(conn):
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM capsules")
-        return cursor.fetchall()
+    """활성화된 캡슐만 가져오기"""
+    try:
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM capsules WHERE is_active = 1 ORDER BY name ASC"
+            cursor.execute(sql)
+            return cursor.fetchall()
+    except Exception as e:
+        print(f"조회 에러: {e}")
+        return []
 
 # 테이블 생성 함수
 def create_tables(conn):
@@ -57,22 +62,37 @@ def consume_capsule(conn, capsule_id, drink_type="아이스 아메리카노"):
         conn.rollback()
         return False
 
-# 캡슐 신규 등록 함수
-def add_capsule(conn, name, brand, intensity, acidity, stock_count):
-    """새로운 캡슐 정보를 추가합니다."""
+# 다 먹은 캡슐 숨기기
+def hide_capsule(conn, capsule_id):
+    """캡슐을 삭제하지 않고 숨김 처리"""
     try:
         with conn.cursor() as cursor:
+            sql = "UPDATE capsules SET is_active = 0 WHERE id = %s"
+            cursor.execute(sql, (capsule_id,))
+            conn.commit()
+            return True
+    except Exception as e:
+        print(f"숨기기 에러: {e}")
+        return False
+
+# 캡슐 신규 등록 함수
+def add_capsule(conn, name, brand, intensity, acidity, stock):
+    try:
+        with conn.cursor() as cursor:
+            # 이름(name)이 같으면 stock_count만 기존 값에 더해주는 쿼리
             sql = """
                 INSERT INTO capsules (name, brand, intensity, acidity, stock_count)
                 VALUES (%s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE 
+                stock_count = stock_count + VALUES(stock_count)
             """
-            cursor.execute(sql, (name, brand, intensity, acidity, stock_count))
-        conn.commit()
-        return True
+            cursor.execute(sql, (name, brand, intensity, acidity, stock))
+            conn.commit()
+            return True
     except Exception as e:
-        print(f"등록 에러: {e}")
-        conn.rollback()
+        print(f"Error: {e}")
         return False        
+
 
 # 날짜별 소비량
 def get_consumption_by_date(conn):

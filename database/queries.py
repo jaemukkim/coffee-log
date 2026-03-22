@@ -73,3 +73,20 @@ def add_capsule(conn, name, brand, intensity, acidity, stock_count):
         print(f"등록 에러: {e}")
         conn.rollback()
         return False        
+
+# 날짜별 소비량
+def get_consumption_by_date(conn):
+    """날짜별 커피 소비량을 가져옵니다."""
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT DATE(consumed_at) as date, COUNT(*) as count 
+                FROM consumption_log 
+                GROUP BY DATE(consumed_at)
+                ORDER BY date ASC
+            """
+            cursor.execute(sql)
+            return cursor.fetchall()
+    except Exception as e:
+        print(f"조회 에러: {e}")
+        return []        

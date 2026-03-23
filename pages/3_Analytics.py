@@ -4,11 +4,7 @@ import plotly.express as px
 from database.connection import get_connection
 from database.queries import get_all_capsules
 from database.queries import get_consumption_by_date
-
-
-# 더미 데이터 생성
-import numpy as np 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 st.set_page_config(page_title="소비 분석", page_icon="📈", layout="centered")
 st.title("📈 커피 소비 리포트")

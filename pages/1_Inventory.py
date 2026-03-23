@@ -1,6 +1,6 @@
 import streamlit as st
 from database.connection import get_connection
-from database.queries import create_tables, get_all_capsules, add_capsule, hide_capsule
+from database.queries import get_all_capsules, add_capsule, hide_capsule
 
 st.set_page_config(page_title="재고 관리", page_icon="📦")
 st.title("📦 캡슐 재고 관리")
